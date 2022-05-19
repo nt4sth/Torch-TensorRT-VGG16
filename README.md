@@ -1,4 +1,4 @@
-# VGG16 Trained on CIFAR10
+# Torch-TensorRT Deployment on VGG16 as CIFAR10 Classifier 
 
 ## Installation
 
@@ -27,7 +27,7 @@ python3 -m pip install nvidia-pyindex
 python3 -m pip install --upgrade nvidia-tensorrt
 ```
 
-Test
+**Test**:
 
 ```python
 python3
@@ -44,7 +44,7 @@ dependencies: PyTorch, cuDNN, CUDA, TensorRT
 pip3 install torch-tensorrt -f https://github.com/NVIDIA/Torch-TensorRT/releases
 ```
 
-Test
+**Test**:
 
 ```python
 python3
@@ -55,16 +55,16 @@ python3
 ### Load Repository
 
 ```bash
-git clone https://github.com/QQQQ00243/VGG16.git
+git clone https://github.com/QQQQ00243/Torch-TensorRT-VGG16.git
 ```
 
-### Prequisites
+### Install required packages
 
 ```bash
 pip3 install -r requirements.txt --user
 ```
 
-## Training
+### Prepare dataset
 
 ```bash
 # link data
@@ -75,6 +75,9 @@ for a in * ; do ln -s /path-to-your-cifar10$a /project-root-path/data/$a ; done
 cd /hy-nas/datasets/CIFAR10/
 for a in * ; do ln -s /hy-nas/datasets/CIFAR10/$a /hy-tmp/VGG16/data/$a ; done
 ```
+
+## Training
+
 The following recipe should get somewhere between 89-92% accuracy on the CIFAR10 testset
 ```bash
 python3 main.py --lr 0.01 --batch-size 128 --drop-ratio 0.15 --ckpt-dir $(pwd)/vgg16_ckpts --epochs 100
@@ -92,9 +95,22 @@ python3 finetune_qat.py --lr 0.01 --batch-size 128 --drop-ratio 0.15 --ckpt-dir 
 
 ## PTQ
 
+You can set `cache-file` if you already have calibration file.
+
 ```bash
-python3 PTQ.py --ckpt-dir /hy-nas/ --output-dir /hy-nas/
+python3 PTQ.py --ckpt-file <path-to-your checkpoint file> --output-dir <directory-to-save-quantized-model> --cache-file <path-to-your-calibration-cache-file>
 ```
+
+### Updates
+
+* [2022/05/19] Evaluation result of VGG16 calibrated on test set of CIFAR10
+
+| model | accuracy | average batch time (ms) |
+| :---: | :------: | :---------------------: |
+|  fp   |  0.9288  |          2.43           |
+|  ptq  |  0.9296  |          1.61           |
+
+**[Warning]** Model should not see test dataset before testing. Hence, it is better to subsample training dataset as calibration dataset.
 
 
 
@@ -109,6 +125,41 @@ python3 PTQ.py --ckpt-dir /hy-nas/ --output-dir /hy-nas/
 ```bash
 export LD_LIBRARY_PATH="/usr/local/cuda/lib64:/hy-nas/venv/lib/python3.8/site-packages/tensorrt"
 ```
+
+
+
+**Problem**:
+
+evaluation batch size must be the same as that of calibration.
+
+````bash
+ERROR: [Torch-TensorRT] - 3: [executionContext.cpp::setBindingDimensions::943] Error Code 3: API Usage Error (Parameter check failed at: runtime/api/executionContext.cpp::setBindingDimensions::943, condition: profileMaxDims.d[i] >= dimensions.d[i]. Supplied binding dimension [32,3,32,32] for bindings[0] exceed min ~ max range at index 0, maximum dimension in profile is 1, minimum dimension in profile is 1, but supplied dimension is 32.
+)
+Traceback (most recent call last):
+  File "eval_ptq.py", line 113, in <module>
+    main()
+  File "eval_ptq.py", line 109, in main
+    evaluate(model=ptq_model, dataloader=test_dataloader, crit=crit)
+  File "eval_ptq.py", line 64, in evaluate
+    loss += crit(out, labels)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1110, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/loss.py", line 1163, in forward
+    return F.cross_entropy(input, target, weight=self.weight,
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/functional.py", line 2996, in cross_entropy
+    return torch._C._nn.cross_entropy_loss(input, target, weight, _Reduction.get_enum(reduction), ignore_index, label_smoothing)
+ValueError: Expected input batch_size (1) to match target batch_size (32).
+````
+
+**Reason**:
+
+
+
+**Solution**:
+
+
+
+
 
 
 
@@ -174,7 +225,7 @@ class DataLoaderCalibrator(object):
                 log(Level.Error, "Input cache file is None but use_cache is set to True in INT8 mode.")
 ```
 
- ## Description
+ ### Description
 
 Recently I used Torch-TensorRT to quantized YOLOx. I calibrated the model using PTQ and saved cache file. However, when I want to use this cache file in `DataLoaderCalibrator`, an error occured:
 
@@ -214,9 +265,7 @@ class DataLoaderCalibrator(object):
 
 and I think that `if not cache_file:` should be `if cache_file:` instead.
 
-
-
-## Environment
+### Environment
 
 **TensorRT Version**:  8.4.0.6
 **GPU Type**:   NVIDIA GeForce RTX 3090
@@ -231,16 +280,12 @@ and I think that `if not cache_file:` should be `if cache_file:` instead.
 
 
 
-
-## Relevant Files
+###  Relevant Files
 
 link to source code of  `DataLoaderCalibrator` https://pytorch.org/TensorRT/_modules/torch_tensorrt/ptq.html#CacheCalibrator
 
 
-
-
-
-## Steps To Reproduce
+### Steps To Reproduce
 
 <!-- Craft a minimal bug report following this guide - https://matthewrocklin.com/blog/work/2018/02/28/minimal-bug-reports -->
 
@@ -249,9 +294,11 @@ Please include:
   * Exact steps/commands to run your repro
   * Full traceback of errors encountered
 
-
-
-
+```bash
+git clone https://github.com/QQQQ00243/Torch-TensorRT-VGG16.git
+python main.py --epochs 10
+python issue.py 
+```
 
 
 

@@ -1,5 +1,6 @@
 import time
 import torch
+import torch_tensorrt
 import argparse
 import numpy as np
 import torch.nn.functional as F
@@ -8,12 +9,37 @@ from vgg16 import vgg16
 from torchvision import datasets, transforms
 
 
-def load_model(path):
+def make_parser():
+    parser = argparse.ArgumentParser(description='VGG16 PTQ evaluation')
+    parser.add_argument(
+        '--fp-ckpt-file', default='/hy-nas/ckpt_epoch100.pth',
+        type=str, help='Path to load fp checkpoints'
+        )
+    parser.add_argument(
+        '--ptq-ckpt-file', default='/hy-nas/ckpt_epoch100.pth',
+        type=str, help='Path to load quantized checkpoints'
+        )
+    parser.add_argument(
+        '--output-dir', default='/hy-nas/',
+        type=str, help='Path to save PTQ model'
+        )
+    return parser
+
+
+def load_ptq_model(ckpt_file):
+    print('Loading from {}'.format(ckpt_file))
+    trt_model = torch.jit.load(ckpt_file)
+    trt_model.cuda()
+    trt_model.eval()
+    return trt_model
+
+
+def load_fp_model(ckpt_file):
+    print('Loading from {}'.format(ckpt_file))
     model = vgg16(num_classes=10, init_weights=False)
-    print('Loading from {}'.format(path))
-    ckpt = torch.load(path)
+    ckpt = torch.load(ckpt_file)
     model.load_state_dict(ckpt["model_state_dict"])
-    model = model.to('cuda')
+    model.cuda()
     model.eval()
     return model
 
@@ -53,15 +79,7 @@ def evaluate(model, dataloader, crit):
 
 
 def main():
-    PARSER = argparse.ArgumentParser(description='Evaluate PTQ and FP model')
-    PARSER.add_argument('--fp-model-path', type=str,
-                        help='path to float-point model')
-    PARSER.add_argument('--ptq-model-path', type=str,
-                        help='path to PTQ model')
-    args = PARSER.parse_args()
-
-    model = vgg16(num_classes=10, init_weights=False)
-    model = model.cuda()
+    args = make_parser().parse_args()
 
     test_dataset = datasets.CIFAR10(
         root='./data',
@@ -76,17 +94,20 @@ def main():
         ]))
 
     test_dataloader = torch.utils.data.DataLoader(
-        test_dataset, batch_size=32, shuffle=False, num_workers=2
+        test_dataset,
+        batch_size=32,
+        shuffle=False,
+        num_workers=4,
     )
 
     crit = torch.nn.CrossEntropyLoss()
 
     print('Evaluating float-point model:')
-    fp_model = load_model(args.fp_model_path)
+    fp_model = load_fp_model(args.fp_ckpt_file)
     evaluate(model=fp_model, dataloader=test_dataloader, crit=crit)
 
     print('Evaluating ptq model:')
-    ptq_model = load_model(args.ptq_model_path)
+    ptq_model = load_ptq_model(args.ptq_ckpt_file)
     evaluate(model=ptq_model, dataloader=test_dataloader, crit=crit)
 
 

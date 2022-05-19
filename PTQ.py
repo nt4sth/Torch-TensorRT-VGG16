@@ -33,7 +33,6 @@ def load_model(ckpt_file):
     model.load_state_dict(ckpt["model_state_dict"])
     model = model.to('cuda')
     model.eval()
-    model.cuda()
     return model
 
 
