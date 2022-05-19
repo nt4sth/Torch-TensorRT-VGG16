@@ -7,6 +7,7 @@ import torch.nn.functional as F
 
 from vgg16 import vgg16
 from torchvision import datasets, transforms
+from utils.models import load_fp_model, load_ptq_model
 
 
 def make_parser():
@@ -20,24 +21,6 @@ def make_parser():
         type=str, help='Path to load quantized checkpoints'
         )
     return parser
-
-
-def load_ptq_model(ckpt_file):
-    print('Loading from {}'.format(ckpt_file))
-    trt_model = torch.jit.load(ckpt_file)
-    trt_model.cuda()
-    trt_model.eval()
-    return trt_model
-
-
-def load_fp_model(ckpt_file):
-    print('Loading from {}'.format(ckpt_file))
-    model = vgg16(num_classes=10, init_weights=False)
-    ckpt = torch.load(ckpt_file)
-    model.load_state_dict(ckpt["model_state_dict"])
-    model.cuda()
-    model.eval()
-    return model
 
 
 def evaluate(model, dataloader, crit):
