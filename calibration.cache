@@ -1,0 +1,68 @@
+TRT-8400-MinMaxCalibration
+input_0: 3cb1a063
+input.1: 3d73a3fe
+input.3: 3d5bfa88
+input.5: 3d591dbe
+input.7: 3db8c1ae
+input.9: 3d7b7b47
+input.11: 3d3c2127
+input.13: 3d3c2127
+input.15: 3d41e336
+input.17: 3d474612
+input.19: 3d1463fe
+input.21: 3d1c6adf
+input.23: 3d149bbd
+input.25: 3d126ec8
+input.27: 3d126ec8
+input.29: 3cf8ed06
+input.31: 3cfb3e20
+input.33: 3cfb3e20
+input.35: 3ccb1e81
+input.37: 3d042ed8
+input.39: 3d042ed8
+input.41: 3ccff6e5
+input.43: 3d24ece7
+input.45: 3d24ece7
+input.47: 3d24ece7
+input.49: 3d0906f8
+input.51: 3d302951
+input.53: 3d302951
+input.55: 3d07abd7
+input.57: 3d35a0d2
+input.59: 3d35a0d2
+input.61: 3d2cb5e2
+input.63: 3d595439
+input.65: 3d595439
+input.67: 3d595439
+input.69: 3d073e42
+input.71: 3d18769e
+input.73: 3d18769e
+input.75: 3c8d6a08
+input.77: 3d01604f
+input.79: 3d01604f
+input.81: 3cc52f14
+input.83: 3d169023
+input.85: 3d169023
+input.87: 3d169023
+x: 3d169023
+input.89: 3d169023
+(Unnamed Layer* 46) [Constant]_output: 398b1d4b
+346: 398b1d4b
+347: 3cbf7665
+348: 3955c66c
+(Unnamed Layer* 50) [Shuffle]_output: 3955c66c
+349: 3cc0659d
+input.93: 3cc0659d
+(Unnamed Layer* 53) [Constant]_output: 39343011
+351: 39343011
+352: 3cad0b58
+353: 391676ec
+(Unnamed Layer* 57) [Shuffle]_output: 391676ec
+354: 3cade783
+input.99: 3cade783
+(Unnamed Layer* 60) [Constant]_output: 3a6353ca
+356: 3a6353ca
+357: 3e347b05
+358: 3a9428b5
+(Unnamed Layer* 64) [Shuffle]_output: 3a9428b5
+output_0: 3e33f00d
