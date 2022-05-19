@@ -31,7 +31,7 @@ def load_model(ckpt_file):
     assert (os.path.isfile(ckpt_file))
     ckpt = torch.load(ckpt_file)
     model.load_state_dict(ckpt["model_state_dict"])
-    model = model.to('cuda')
+    model.cuda()
     model.eval()
     return model
 
@@ -90,7 +90,6 @@ def main():
     model = load_model(args.ckpt_file)
     trt_model = calibrate_model(model=model, cache_file=args.cache_file)
     trt_model.save(os.path.join(args.output_dir, 'ptq_vgg16.ts'))
-    # torch.jit.save(trt_model.state_dict(), os.path.join(args.output_dir, 'ptq_vgg16.pth'))
 
 
 if __name__ == '__main__':

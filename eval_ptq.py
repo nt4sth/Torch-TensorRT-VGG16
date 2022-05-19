@@ -16,12 +16,8 @@ def make_parser():
         type=str, help='Path to load fp checkpoints'
         )
     parser.add_argument(
-        '--ptq-ckpt-file', default='/hy-nas/ckpt_epoch100.pth',
+        '--ptq-ckpt-file', default='/hy-nas/ptq_vgg16.ts',
         type=str, help='Path to load quantized checkpoints'
-        )
-    parser.add_argument(
-        '--output-dir', default='/hy-nas/',
-        type=str, help='Path to save PTQ model'
         )
     return parser
 
@@ -74,8 +70,8 @@ def evaluate(model, dataloader, crit):
 
     # test_probs = torch.cat([torch.stack(batch) for batch in class_probs])
     # test_preds = torch.cat(class_preds)
-    print(f'loss:{loss/total}\taccuracy{correct / total}\t'
-          f'average batch time{np.mean(timings)*1000:.2f}')
+    print(f'loss:{loss/total}\taccuracy: {correct / total}\t'
+          f'average batch time (ms): {np.mean(timings)*1000:.2f}')
 
 
 def main():
@@ -95,7 +91,7 @@ def main():
 
     test_dataloader = torch.utils.data.DataLoader(
         test_dataset,
-        batch_size=32,
+        batch_size=1,
         shuffle=False,
         num_workers=4,
     )
@@ -104,7 +100,7 @@ def main():
 
     print('Evaluating float-point model:')
     fp_model = load_fp_model(args.fp_ckpt_file)
-    evaluate(model=fp_model, dataloader=test_dataloader, crit=crit)
+    evaluate(model=fp_model, dataloader=test_dataloader, crit=crit)    
 
     print('Evaluating ptq model:')
     ptq_model = load_ptq_model(args.ptq_ckpt_file)

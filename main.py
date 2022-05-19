@@ -90,7 +90,7 @@ def main():
     num_classes = len(classes)
 
     model = vgg16(num_classes=num_classes, init_weights=False)
-    model = model.cuda()
+    model.cuda()
 
     data = iter(training_dataloader)
     images, _ = data.next()
