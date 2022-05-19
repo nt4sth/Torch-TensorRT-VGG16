@@ -1,3 +1,4 @@
+import os
 import time
 import torch
 import torchvision
@@ -33,18 +34,19 @@ def get_calib_loader(
     return calib_loader
 
 
-def calibrate_model(model, cache_file, subsample_ratio):
+def calibrate_model(model, subsample_ratio, cache_file=None):
     calib_loader = get_calib_loader(
         batch_size=1,
         subsample_ratio=subsample_ratio,
     )
 
-    if os.path.isfile(cache_file):
-        print('Using cache file\n')
-        calibrator = torch_tensorrt.ptq.CacheCalibrator(
-            cache_file,
-            algo_type=torch_tensorrt.ptq.CalibrationAlgo.ENTROPY_CALIBRATION_2,
-        )
+    if cache_file:
+        if os.path.isfile(cache_file):
+            print('Using cache file\n')
+            calibrator = torch_tensorrt.ptq.CacheCalibrator(
+                cache_file,
+                algo_type=torch_tensorrt.ptq.CalibrationAlgo.ENTROPY_CALIBRATION_2,
+            )
     else:
         print('No cache file available.\n')
         calibrator = torch_tensorrt.ptq.DataLoaderCalibrator(

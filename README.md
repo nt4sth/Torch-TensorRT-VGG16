@@ -112,42 +112,7 @@ python3 PTQ.py --ckpt-file <path-to-your checkpoint file> --output-dir <director
 
 **[Warning]** Model should not see test dataset before testing. Hence, it is better to subsample training dataset as calibration dataset.
 
-* [2022/05/19] Create a new branch named `training` to develop a new calibration strategy
-
-  check size of CIFAR10 dataset
-
-  ```python
-  import torchvision
-  
-  
-  train_dataset = torchvision.datasets.CIFAR10(
-      root='./data',
-      train=True,
-  )
-  num_train = len(train_dataset)
-  
-  test_dataset = torchvision.datasets.CIFAR10(
-      root='./data',
-      train=False,
-  )
-  num_test = len(test_dataset)
-  
-  print(f"Number of training instances: {num_train}")
-  print(f"Number of test instances: {num_test}")
-  ```
-  
-  Output:
-  
-  ```
-  Number of training instances: 50000
-  Number of test instances: 10000
-  ```
-  
-  
-  
-  
-  
-  
+* [2022/05/19] Add calibrating by sub-sampling training dataset
 
 
 
@@ -161,47 +126,6 @@ python3 PTQ.py --ckpt-file <path-to-your checkpoint file> --output-dir <director
 
 ```bash
 export LD_LIBRARY_PATH="/usr/local/cuda/lib64:/hy-nas/venv/lib/python3.8/site-packages/tensorrt"
-```
-
-
-
-**Problem**: 
-
-````
-terminate called without an active exception
-Aborted (core dumped)
-````
-
-**Reason**: Collision between `torch.utils.data.sampler.SubsetRandomSampler` and `torch_tensorrt.compile()`
-
-**Solution**: Use `torch.data.utils.data.Subset()` instead.
-
-```python
-def get_calib_loader(
-    batch_size,
-    subsample_ratio,
-    num_workers=4,
-):
-    print("Creating calibration dataloader.\n")
-    train_set = torchvision.datasets.CIFAR10(
-        root='./data',
-        train=True,
-        transform=transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize((0.4914, 0.4822, 0.4465),
-                                (0.2023, 0.1994, 0.2010))
-        ])
-    )
-    num_train = len(train_set)
-    calib_idx = list(range(int(subsample_ratio * num_train)))
-    calib_set = torch.utils.data.Subset(train_set, calib_idx)
-    calib_loader = torch.utils.data.DataLoader(
-            dataset=calib_set,
-            batch_size=batch_size,
-            num_workers=num_workers,
-            shuffle=True,
-        )
-    return calib_loader
 ```
 
 
