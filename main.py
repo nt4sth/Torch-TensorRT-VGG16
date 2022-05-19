@@ -23,7 +23,7 @@ PARSER.add_argument('--drop-ratio', default=0., type=float, help="Dropout ratio"
 PARSER.add_argument('--momentum', default=0.9, type=float, help="Momentum")
 PARSER.add_argument('--weight-decay', default=5e-4, type=float, help="Weight decay")
 PARSER.add_argument('--ckpt-dir',
-                    default="/tmp/vgg16_ckpts",
+                    default="./vgg16_ckpts",
                     type=str,
                     help="Path to save checkpoints (saved every 10 epochs)")
 PARSER.add_argument('--start-from',

@@ -11,11 +11,11 @@ from torchvision import transforms
 def make_parser():
     parser = argparse.ArgumentParser(description='VGG16 PTQ deploy')
     parser.add_argument('--ckpt-file',
-                        default='/hy-nas/ckpt_epoch100.pth',
+                        default='./vgg16_ckpts/ckpt_epoch10.pth',
                         type=str,
                         help='Path to save checkpoints')
     parser.add_argument('--output-dir',
-                        default='/hy-nas/',
+                        default='./',
                         type=str,
                         help='Path to save PTQ model')
     parser.add_argument('--cache-file',
