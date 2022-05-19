@@ -41,7 +41,11 @@ def test(model, dataloader, crit):
 
 PARSER = argparse.ArgumentParser(description="Export trained VGG")
 PARSER.add_argument('ckpt', type=str, help="Path to saved checkpoint")
-PARSER.add_argument('--enable_qat', action="store_true", help="Enable quantization aware training. This is recommended to perform on a pre-trained model.")
+PARSER.add_argument(
+    '--enable_qat', action="store_true",
+    help="Enable quantization aware training."
+         " This is recommended to perform on a pre-trained model."
+)
 
 args = PARSER.parse_args()
 
@@ -55,15 +59,21 @@ weights = ckpt["model_state_dict"]
 model.load_state_dict(weights)
 model.eval()
 
-testing_dataset = datasets.CIFAR10(root='./data',
-                                   train=False,
-                                   download=True,
-                                   transform=transforms.Compose([
-                                       transforms.ToTensor(),
-                                       transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
-                                   ]))
+testing_dataset = datasets.CIFAR10(
+    root='./data',
+    train=False,
+    download=True,
+    transform=transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(
+            (0.4914, 0.4822, 0.4465),
+            (0.2023, 0.1994, 0.2010)
+        )
+    ]))
 
-testing_dataloader = torch.utils.data.DataLoader(testing_dataset, batch_size=32, shuffle=False, num_workers=2)
+testing_dataloader = torch.utils.data.DataLoader(
+    testing_dataset, batch_size=32, shuffle=False, num_workers=2
+)
 
 crit = torch.nn.CrossEntropyLoss()
 

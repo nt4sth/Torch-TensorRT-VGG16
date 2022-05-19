@@ -54,20 +54,14 @@ def calibrate_model(model, cache_file):
         num_workers=4,
     )
 
-    if os.path.isfile(cache_file):
-        print('Using cache file')
-        calibrator = torch_tensorrt.ptq.CacheCalibrator(
-            cache_file,
-            algo_type=torch_tensorrt.ptq.CalibrationAlgo.ENTROPY_CALIBRATION_2,
-        )
-    else:
-        calibrator = torch_tensorrt.ptq.DataLoaderCalibrator(
-            calib_loader,
-            cache_file=cache_file,
-            use_cache=False,
-            algo_type=torch_tensorrt.ptq.CalibrationAlgo.ENTROPY_CALIBRATION_2,
-            device=torch.device('cuda:0')
-        )
+    calibrator = torch_tensorrt.ptq.DataLoaderCalibrator(
+        calib_loader,
+        cache_file=cache_file,
+        # DataLoadCalibrator can not detect cache file if `use_cache` is set to True
+        use_cache=True,
+        algo_type=torch_tensorrt.ptq.CalibrationAlgo.ENTROPY_CALIBRATION_2,
+        device=torch.device('cuda:0')
+    )
 
     compile_spec = {
              "inputs": [torch_tensorrt.Input((1, 3, 32, 32))],
@@ -91,7 +85,6 @@ def main():
     model = load_model(args.ckpt_file)
     trt_model = calibrate_model(model=model, cache_file=args.cache_file)
     trt_model.save(os.path.join(args.output_dir, 'ptq_vgg16.ts'))
-    # torch.jit.save(trt_model.state_dict(), os.path.join(args.output_dir, 'ptq_vgg16.pth'))
 
 
 if __name__ == '__main__':
