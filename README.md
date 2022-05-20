@@ -73,7 +73,7 @@ for a in * ; do ln -s /path-to-your-cifar10$a /project-root-path/data/$a ; done
 
 # for example
 cd /hy-nas/datasets/CIFAR10/
-for a in * ; do ln -s /hy-nas/datasets/CIFAR10/$a /hy-tmp/VGG16/data/$a ; done
+for a in * ; do ln -s /hy-nas/datasets/CIFAR10/$a /hy-tmp/Torch-TensorRT-VGG16/data/$a ; done
 ```
 
 ## Training
@@ -105,6 +105,8 @@ python3 PTQ.py --ckpt-file <path-to-your checkpoint file> --output-dir <director
 
 * [2022/05/19] Evaluation result of VGG16 calibrated on test set of CIFAR10
 
+**[Tip]** CIFAR10 has 5,000 images in training dataset and 1,000 images in test dataset.
+
 | model | accuracy | average batch time (ms) |
 | :---: | :------: | :---------------------: |
 |  fp   |  0.9288  |          2.43           |
@@ -113,6 +115,26 @@ python3 PTQ.py --ckpt-file <path-to-your checkpoint file> --output-dir <director
 **[Warning]** Model should not see test dataset before testing. Hence, it is better to subsample training dataset as calibration dataset.
 
 * [2022/05/19] Add calibrating by sub-sampling training dataset
+
+  Explore the relationship between the performance of quantized model and sub-sample ratio
+
+  | Sub-sample ratio | Calibration Time (s) | Loss (CE) | Test Accuracy | Average Batch Time (ms) |
+  | :--------------: | :------------------: | :-------: | :-----------: | :---------------------: |
+  |       0.1        |        90.03         |  0.2850   |    0.9275     |          2.69           |
+  |       0.2        |        135.15        |  0.2835   |    0.9281     |          2.21           |
+  |       0.3        |        181.44        |  0.2846   |    0.9281     |          2.77           |
+  |       0.4        |        228.32        |  0.2846   |    0.9281     |          2.81           |
+  |       0.5        |        277.48        |  0.2841   |    0.9288     |          3.01           |
+
+  **[Problem]** Average batch time doubled after changing `eval_PTQ.py`.
+
+  **[Idea]** Do we need warm-up epochs?
+  
+  **[Strange]** This problem vanished after I got up the next day.
+  
+  
+  
+   
 
 
 

@@ -4,7 +4,6 @@ import argparse
 import numpy as np
 import torch_tensorrt
 
-from vgg16 import vgg16
 from utils.PTQ import calibrate_model
 from utils.models import load_fp_model
 
